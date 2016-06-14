@@ -5,3 +5,4 @@
 
 add_subdirectory(voxelize)
 add_subdirectory(voxelizeBatch)
+add_subdirectory(cutoffError)
