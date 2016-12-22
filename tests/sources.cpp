@@ -37,6 +37,7 @@
 #include <fivox/eventFunctor.h>
 #include <fivox/helpers.h>
 #include <fivox/imageSource.h>
+#include <fivox/genericLoader.h>
 #ifdef FIVOX_USE_LFP
 #  include <fivox/lfp/lfpFunctor.h>
 #endif
@@ -191,6 +192,15 @@ struct SourcesFixture
                       << ',' << std::setw(15)
                       << size*size*size / 1024.f / 1024.f / t2 << std::endl;
         }
+
+        BOOST_CHECK( filter1->getEventSource()->write( "ascii", fivox::EventFileFormat::ascii ));
+        BOOST_CHECK( filter1->getEventSource()->write( "binary", fivox::EventFileFormat::binary ));
+
+        fivox::URIHandler asciiSourceURI( servus::URI( "fivox://.ascii" ));
+        fivox::GenericLoader asciiSource( asciiSourceURI );
+
+        BOOST_CHECK_EQUAL( filter1->getEventSource()->getNumEvents( ),
+                           asciiSource.getNumEvents( ));
     }
 };
 }
@@ -201,7 +211,7 @@ BOOST_AUTO_TEST_CASE( fivoxVoltages_source )
 {
     // Compartment report 'voltages' (binary) contains timestamps
     // between 0 and 100 with a Dt=0.1 => data range is 0.0 to 10.0 ms
-    testSource( fivox::URI( "fivoxCompartments://" ), 5.455078125f,
+    testSource( fivox::URI( "fivoxcompartments://" ), 5.455078125f,
                 -0.062685228640475543, vmml::Vector2ui( 0, 100 ));
 }
 
@@ -209,37 +219,37 @@ BOOST_AUTO_TEST_CASE( fivoxSomas_source )
 {
     // Soma report 'somas' (binary) contains timestamps
     // between 0 and 100 with a Dt=0.1 => data range is 0.0 to 10.0 ms
-    testSource( fivox::URI( "fivoxSomas://" ), 0.f,
+    testSource( fivox::URI( "fivoxsomas://" ), 0.f,
                 -0.0016181814135052264, vmml::Vector2ui( 0, 100 ));
 }
 
-#ifdef FIVOX_USE_LFP
+/*#ifdef FIVOX_USE_LFP
 BOOST_AUTO_TEST_CASE( fivoxLFP_source )
 {
     // Compartment currents report 'currents' (binary) contains timestamps
     // between 0 and 100 with a Dt=0.1 => data range is 0.0 to 10.0 ms
-    testSource( fivox::URI( "fivoxCompartments://?functor=lfp" ), 0.f,
-                3.3634767649011466e-09f, vmml::Vector2ui( 0, 100 ));
+    testSource( fivox::URI( "fivoxsomas://?functor=lfp&resolution=0.05" ), 0.f,
+                3.3634767649011466e-09f, vmml::Vector2ui( 0, 1 ));
 }
-#endif
+#endif*/
 
 BOOST_AUTO_TEST_CASE( fivoxSpikes_source )
 {
     // Spikes report timestamps range between 0.725 and 9.975 ms
-    testSource( fivox::URI( "fivoxSpikes://?duration=1&dt=1&target=Column" ),
+    testSource( fivox::URI( "fivoxspikes://?duration=1&dt=1&target=Column" ),
                 0.005859375f, 0.005859375f, vmml::Vector2ui( 0, 9 ));
 }
 
 BOOST_AUTO_TEST_CASE( fivoxSynapses_source )
 {
     // Synapse reports don't have time support and return a 1-frame interval
-    testSource( fivox::URI( "fivoxSynapses://?target=Column" ), 7.42578125f,
+    testSource( fivox::URI( "fivoxsynapses://?target=Column" ), 7.42578125f,
                 437.92578125f, vmml::Vector2ui( 0, 1 ));
 }
 
 BOOST_AUTO_TEST_CASE( fivoxVSD_source )
 {
-    testSource( fivox::URI( "fivoxVSD://?target=allmini50" ),
+    testSource( fivox::URI( "fivoxvsd://?target=allmini50" ),
                 12.703125, -85293.598821282387f, vmml::Vector2ui( 0, 100 ));
 }
 
